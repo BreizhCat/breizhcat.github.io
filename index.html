@@ -1,7 +1,283 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="fr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1">
+    <!-- Mise en forme -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.7.0/css/all.css"
+        integrity="sha384-lZN37f5QGtY3VHgisS14W3ExzMWZxybE1SJSEsQp9S+oqd12jhcu+A56Ebc1zFSJ" crossorigin="anonymous">
+    <link href="https://stackpath.bootstrapcdn.com/bootswatch/4.3.1/sketchy/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-N8DsABZCqc1XWbg/bAlIDk7AS/yNzT5fcKzg/TwfmTuUqZhGquVmpb5VvfmLcMzp" crossorigin="anonymous">
+    <style>
+        .information {
+            cursor: help;
+        }
+    </style>
+    <!-- Optional JavaScript -->
+
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+        integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+        integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
+        crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+        integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
+        crossorigin="anonymous"></script>
+    <script
+        src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js?autoload=true&amp;skin=sunburst&amp;lang=css"
+        defer></script>
+    <script src="i18n.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <title>Génération d'événements</title>
+</head>
+
 <body>
-<h1>Hello World</h1>
-<p>I'm hosted with GitHub Pages.</p>
+    <div id="content" class="container">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary mt-1" id="navbar">
+            <a class="navbar-brand" href="#"><img class="d-inline-block align-top"
+                    src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/calendar-512.png" width="30" height="30"
+                    alt="Logo">&NonBreakingSpace;{{ i18n_text.nav_title }}</a>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    <item-menu v-for="item in menuItem" :i18n_text="i18n_text" v-bind:item="item" v-bind:key="item.text"
+                        @add-new-item="addNewItem"></item-menu>
+                </ul>
+            </div>
+            <div class="form-inline my-2 my-lg-0">
+                <ul class="navbar-nav mr-auto">
+                    <item-language v-for="item in languagues" :lang="language" v-bind:key="item.id" v-bind:item="item"
+                        @change-lang="changeLang"></item-language>
+                </ul>
+            </div>
+        </nav>
+        <!-- Modal -->
+        <div class="modal fade" id="optionsModal" tabindex="-1" role="dialog" aria-labelledby="optionsModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="optionsModalLabel">{{ i18n_text.opt_title}}</h5>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary">{{ i18n_text.opt_save}}</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n_text.opt_leave}}</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="formulaire" class="mt-2">
+            <form id="events">
+                <div id="event_list" class="mt-2">
+                    <item-event v-for="item in eventItem" v-bind:item="item" v-bind:key="item.id" :i18n_text="i18n_text"
+                        :cal_item="calItem" @remove-item="removeItem" @duplicate-item="copyItem">
+                    </item-event>
+                    <no-item-event :i18n_text="i18n_text" v-if="!eventItem.length"></no-item-event>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script>
+        $(function () {
+            Vue.component('item-menu', {
+                /* data-toggle="modal" data-target="#optionsModal" */
+                props: ['item', 'i18n_text'],
+                template: '<li class="nav-item">' +
+                    '<a @click="$emit(item.action)" class="nav-link" href="#" >' +
+                    '<span :class="item.icon"></span>' +
+                    '&nbsp;{{ i18n_text[item.text] }}</a></li>'
+            });
+            Vue.component('item-language', {
+                props: ['item', 'lang'],
+                template: `<li><img @click="$emit('change-lang', item.id)" :title="item.text" :src="item.icon" :alt="item.id" height="24px" width="24px"></img>&nbsp;</li>`
+            });
+            Vue.component('item-calendar', {
+                props: ['item'],
+                template: `<option :value="item.id">{{ item.text }}</option>`,
+            });
+            Vue.component('no-item-event', {
+                props: ['i18n_text'],
+                template: `<div class="alert alert-dismissible alert-info">{{ i18n_text.texteNoEvent }}</div>`
+            });
+            Vue.component('item-event', {
+                props: ['item', 'i18n_text', 'cal_item'],
+                data: function () {
+                    return {
+                        event_collapse: false,
+                    }
+                },
+                template: `
+                    <fieldset>
+                        <div class="mt-2">      
+                            <div class="btn-group">
+                                <button type="button" data-toggle="collapse" :data-target="'#event_'+item.id" 
+                                aria-expanded="true" :aria-controls="'event_'+item.id"
+                                    class="btn btn-secondary btn-sm" v-on:click="item.collapse = ! item.collapse">
+                                    <i v-if="item.collapse" class="far fa-plus-square"></i>
+                                    <i v-else class="far fa-minus-square"></i>
+                                    {{ i18n_text.toolCollapse }}
+                                </button>
+                                <button type="button" data-toggle="collapse" :data-target="'#comment'+item.id"
+                                aria-expanded="false" :aria-controls="'comment'+item.id" class="btn btn-info btn-sm">
+                                    <i class="fas fa-file-alt"></i>
+                                    {{ i18n_text.toolComment }}
+                                </button>
+                                <button type="button" @click="$emit('duplicate-item', item.id)" class="btn btn-info btn-sm">
+                                    <i class="far fa-copy"></i>
+                                    {{ i18n_text.toolDuplicate }}
+                                </button>
+                                <button type="button" @click="$emit('remove-item', item.id)" class="btn btn-danger btn-sm">
+                                    <i class="fas fa-trash"></i>
+                                    {{ i18n_text.toolDelete }}
+                                </button>    
+                            </div>
+                            <div class="collapse show mt-3" :id="'event_'+item.id" > 
+                                <div class="form-row">
+                                    <div class="input-group mb-3 col-md-10">
+                                        <div class="input-group-prepend information" :title="i18n_text.help_cal">
+                                            <span class="input-group-text"><i class="far fa-calendar-check"></i></span>
+                                        </div>
+                                        <select class="custom-select">
+                                            <item-calendar v-for="item in cal_item" v-bind:item="item" v-bind:key="item.id"></item-calendar>
+                                        </select>   
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" :title="i18n_text.help_rcal"><i class="fas fa-sync"></i></button>
+                                        </div>
+                                    </div>    
+                                </div>
+                                <div class="form-row"> <!-- Titre & location -->
+                                    <div class="input-group mb-3 col-md-5">
+                                        <div class="input-group-prepend information" :title="i18n_text.help_title">
+                                            <span class="input-group-text"><i class="far fa-file-alt"></i></span>
+                                        </div>
+                                        <input type="text" v-model="item.text" :value="item.text" :id="'inputTitle_'+item.id" 
+                                            class="form-control" :placeholder="i18n_text.help_title" />
+                                    </div>
+                                    <div class="input-group mb-3 col-md-5">
+                                        <div class="input-group-prepend information" :title="i18n_text.help_location">
+                                            <span class="input-group-text"><i class="fas fa-map-signs"></i></span>
+                                        </div>
+                                        <input type="text" class="form-control" :id="'inputLocation_'+item.id" 
+                                            :placeholder="i18n_text.help_location" v-model="item.location" :value="item.location" />
+                                    </div>
+                                </div>                               
+                                <div class="form-row"> <!-- Date & heure -->
+                                    <div class="input-group mb-3 col-md-5" :title="i18n_text.help_begda">
+                                        <div class="input-group-prepend information">
+                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control" :id="'inputDataBeg_'+item.id" />
+                                        <div class="input-group-prepend information">
+                                            <span class="input-group-text"><i class="far fa-clock"></i></span>
+                                        </div>
+                                        <input type="time" class="form-control" :id="'inputTimeBeg_'+item.id" /> 
+                                    </div>
+                                    <div class="input-group mb-3 col-md-5" :title="i18n_text.help_endda">
+                                        <div class="input-group-prepend information">
+                                            <span class="input-group-text"><i class="far fa-calendar-alt"></i></span>
+                                        </div>
+                                        <input type="date" class="form-control" :id="'inputDateEnd_'+item.id" />
+                                        <div class="input-group-prepend information">
+                                            <span class="input-group-text"><i class="far fa-clock"></i></span>
+                                        </div>
+                                        <input class="form-control" type="time" :id="'inputTimeEnd_'+item.id" /> 
+                                    </div>
+                                </div> 
+                                <div class="form-row collapse" :id="'comment'+item.id" :title="i18n_text.help_comment"> <!-- Commentaire -->
+                                    <div class="input-group mb-3 col-md-10">
+                                        <div class="input-group-prepend information"><span class="input-group-text"><i class="far fa-clipboard"></i></span></div>
+                                        <textarea class="form-control" rows="3" :id="'inputComment_'+item.id">{{ item.comment }}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </fieldset>
+                    `
+            })
+            let oVueNav = new Vue({
+                el: '#content',
+                data: {
+                    languagues: [
+                        { id: 'fr', text: 'Français', icon: 'https://image.flaticon.com/icons/svg/197/197560.svg' },
+                        { id: 'en', text: 'English', icon: 'https://image.flaticon.com/icons/svg/197/197374.svg' },
+                        { id: 'de', text: 'Deutsch', icon: 'https://image.flaticon.com/icons/svg/197/197571.svg' }
+                    ],
+                    language: 'fr',
+                    menuItem: [],
+                    calItem: [
+                        { id: 'cal1', text: 'Perso' },
+                        { id: 'cal2', text: 'Nous' },
+                        { id: 'cal3', text: 'Eux' }
+                    ],
+                    eventItem: [
+                        { id: 0, text: 'Event 1', location: 'Aussonne', comment: 'toto', collapse: false },
+                        /*    { id: 1, text: 'Event 2', location: 'Cornebarrieu', comment: '', collapse: false },
+                            { id: 2, text: 'Event 3', location: 'Toulouse',     comment: '',     collapse: false },*/
+                    ],
+                    lastItemID: 3,
+                },
+                created: function () {
+                    try {
+                        this.i18n_text = eval('i18n.' + this.language);
+                        let dummy = this.i18n_text.dummy;
+                    } catch (err) {
+                        this.language = 'en';
+                        this.i18n_text = eval('i18n.' + this.language);
+                    }
+                    this.menuItem = [
+                        { icon: 'fas fa-sync-alt', text: 'menu_refresh', action: 'alert("raf")' },
+                        { icon: 'fas fa-tools', text: 'menu_option', action: '' },
+                        { icon: 'far fa-calendar-plus', text: 'menu_add', action: 'add-new-item' },
+                        { icon: 'far fa-check-circle', text: 'menu_create', action: '' },
+                    ];
+                },
+                methods: {
+                    addNewItem: function () {
+                        let newEvent = {
+                            id: this.lastItemID++,
+                            text: '',
+                            comment: '',
+                            location: '',
+                            collapse: false
+                        };
+                        this.eventItem.push(newEvent);
+                    },
+                    changeLang: function (lang) {
+                        this.language = lang;
+                        try {
+                            this.i18n_text = eval('i18n.' + this.language);
+                            let dummy = this.i18n_text.dummy;
+                        } catch (err) {
+                            this.language = 'en';
+                            this.i18n_text = eval('i18n.' + this.language);
+                        }
+                    },
+                    removeItem: function (id) {
+                        this.eventItem = this.eventItem.filter(item => { return item.id !== id })
+                    },
+                    copyItem: function (id) {
+                        let copyFrom = this.eventItem.filter(item => { return item.id === id })[0];
+                        this.eventItem.push({
+                            'id': this.lastItemID++,
+                            'text': copyFrom.text,
+                            'location': copyFrom.location,
+                            'comment': copyFrom.comment,
+                            'collapse': false
+                        });
+                    },
+                }
+            })
+        })
+    </script>
 </body>
+
 </html>
