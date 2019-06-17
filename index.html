@@ -112,28 +112,29 @@
     <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
     <title>Génération d'événements</title>
 </head>
-
 <body>
     <div id="content" class="container">
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary mt-1" id="navbar">
             <a class="navbar-brand" href="#"><img class="d-inline-block align-top"
                     src="https://cdn4.iconfinder.com/data/icons/small-n-flat/24/calendar-512.png" width="30" height="30"
                     alt="Logo">&NonBreakingSpace;{{ i18n_text.nav_title }}</a>
-            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarTextnavbarText" aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
-    <span class="navbar-toggler-icon"></span>
-  </button>
-            <div class="collapse navbar-collapse" id="navbarText">
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+                aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav mr-auto">
                     <item-menu v-for="item in menuItem" :i18n_text="i18n_text" v-bind:item="item" v-bind:key="item.text"
                         @add-new-item="addNewItem"></item-menu>
                 </ul>
-            </div>
+            
             <div class="form-inline my-2 my-lg-0">
                 <ul class="navbar-nav mr-auto">
                     <item-language v-for="item in languagues" :lang="language" v-bind:key="item.id" v-bind:item="item"
                         @change-lang="changeLang"></item-language>
                 </ul>
             </div>
+        </div>
         </nav>
         <!-- Modal -->
         <div class="modal fade" id="optionsModal" tabindex="-1" role="dialog" aria-labelledby="optionsModalLabel"
@@ -151,7 +152,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary">{{ i18n_text.opt_save}}</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n_text.opt_leave}}</button>
+                        <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">{{ i18n_text.opt_leave}}</button>
                     </div>
                 </div>
             </div>
@@ -241,7 +243,7 @@
                                         <div class="input-group-prepend information" :title="i18n_text.help_title">
                                             <span class="input-group-text"><i class="far fa-file-alt"></i></span>
                                         </div>
-                                        <input type="text" v-model="item.text" :value="item.text" :id="'inputTitle_'+item.id" 
+                                        <input type="text" v-model="item.text" :id="'inputTitle_'+item.id" 
                                             class="form-control" :placeholder="i18n_text.help_title" />
                                     </div>
                                     <div class="input-group mb-3 col-md-5">
@@ -249,7 +251,7 @@
                                             <span class="input-group-text"><i class="fas fa-map-signs"></i></span>
                                         </div>
                                         <input type="text" class="form-control" :id="'inputLocation_'+item.id" 
-                                            :placeholder="i18n_text.help_location" v-model="item.location" :value="item.location" />
+                                            :placeholder="i18n_text.help_location" v-model="item.location" />
                                     </div>
                                 </div>                               
                                 <div class="form-row"> <!-- Date & heure -->
