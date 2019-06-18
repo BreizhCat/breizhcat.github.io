@@ -4,7 +4,7 @@ const i18n = {
 
         'nav_title': "Génération d'événements",
         'menu_home': "Accueil",
-        'menu_refresh': "Rafraîchir",
+        'menu_collapse': "Masquer tout",
         'menu_option': "Options",
         'menu_create': 'Créer',
         'menu_add': 'Ajouter',
@@ -42,7 +42,7 @@ const i18n = {
         'dummy': 'dummy',
         'nav_title': "Event Generator",
         'menu_home': "Home",
-        'menu_refresh': "Refresh",
+        'menu_collapse': "Collapse all",
         'menu_option': "Option",
         'menu_create': 'Create',
         'menu_add': 'Add',
