@@ -5,6 +5,7 @@ const i18n = {
         'nav_title': "Génération d'événements",
         'menu_home': "Accueil",
         'menu_collapse': "Masquer tout",
+        'menu_uncollapse':"Afficher tout",
         'menu_option': "Options",
         'menu_create': 'Créer',
         'menu_add': 'Ajouter',
@@ -32,6 +33,7 @@ const i18n = {
         'help_comment': 'Commentaire / Description',
 
         'toolCollapse': 'Masquer',
+        'toolDisplay':'Afficher',
         'toolDuplicate': 'Dupliquer',
         'toolComment': 'Commentaire',
         'toolDelete': 'Supprimer',
@@ -43,6 +45,7 @@ const i18n = {
         'nav_title': "Event Generator",
         'menu_home': "Home",
         'menu_collapse': "Collapse all",
+        'menu_uncollapse':"Display all",
         'menu_option': "Option",
         'menu_create': 'Create',
         'menu_add': 'Add',
@@ -70,6 +73,7 @@ const i18n = {
         'help_comment': 'Comment / Description',
 
         'toolCollapse': 'Hide',
+        'toolDisplay':'Display',
         'toolDuplicate': 'Duplicate',
         'toolComment': 'Comment',
         'toolDelete': 'Delete',
