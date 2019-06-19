@@ -48,14 +48,14 @@
                     <item-menu v-for="item in menuItem" :i18n_text="i18n_text" v-bind:item="item" v-bind:key="item.text"
                         @add-new-item="addNewItem" @collapse-all="collapseAll"></item-menu>
                 </ul>
-            
-            <div class="form-inline my-2 my-lg-0">
-                <ul class="navbar-nav mr-auto">
-                    <item-language v-for="item in languagues" :lang="language" v-bind:key="item.id" v-bind:item="item"
-                        @change-lang="changeLang"></item-language>
-                </ul>
+
+                <div class="form-inline my-2 my-lg-0">
+                    <ul class="navbar-nav mr-auto">
+                        <item-language v-for="item in languagues" :lang="language" v-bind:key="item.id"
+                            v-bind:item="item" @change-lang="changeLang"></item-language>
+                    </ul>
+                </div>
             </div>
-        </div>
         </nav>
         <!-- Modal -->
         <div class="modal fade" id="optionsModal" tabindex="-1" role="dialog" aria-labelledby="optionsModalLabel"
@@ -73,7 +73,8 @@
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-primary">{{ i18n_text.opt_save}}</button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">{{ i18n_text.opt_leave}}</button>
+                        <button type="button" class="btn btn-secondary"
+                            data-dismiss="modal">{{ i18n_text.opt_leave}}</button>
                     </div>
                 </div>
             </div>
@@ -107,6 +108,19 @@
                                 height="24px" width="24px"></img>&nbsp;
                             </li>`
             });
+
+            Vue.component('color-picker', {
+                template: `  <div class="input-group-append">
+    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fill-drip"></i></button>
+    <div class="dropdown-menu">
+      <a class="dropdown-item" href="#">Action</a>
+      <a class="dropdown-item" href="#">Another action</a>
+      <a class="dropdown-item" href="#">Something else here</a>
+      <div role="separator" class="dropdown-divider"></div>
+      <a class="dropdown-item" href="#">Separated link</a>
+    </div>
+  </div>`
+            })
             Vue.component('item-calendar', {
                 props: ['item'],
                 template: `<option :value="item.id" >{{ item.text }}</option>`,
@@ -131,7 +145,8 @@
                                     class="btn btn-secondary btn-sm" v-on:click="item.collapse = ! item.collapse">
                                     <i v-if="item.collapse" class="far fa-plus-square"></i>
                                     <i v-else class="far fa-minus-square"></i>
-                                    <span v-if="!notext">{{ i18n_text.toolCollapse }}</span>
+                                    <span v-if="!notext && !item.collapse">{{ i18n_text.toolCollapse }}</span>
+                                    <span v-if="!notext && item.collapse">{{ i18n_text.toolDisplay }}</span>
                                 </button>
                                 <button type="button" data-toggle="collapse" :data-target="'#comment'+item.id"
                                 aria-expanded="false" :aria-controls="'comment'+item.id" class="btn btn-info btn-sm">
@@ -147,7 +162,7 @@
                                     <span v-if="!notext">{{ i18n_text.toolDelete }}</span>
                                 </button>    
                             </div>
-                            <div class="collapse show mt-3" :id="'event_'+item.id" > 
+                            <div class="collapse show mt-3 collapse-block" :id="'event_'+item.id" > 
                                 <div class="form-row">
                                     <div class="input-group mb-3 col-md-10">
                                         <div class="input-group-prepend information" :title="i18n_text.help_cal">
@@ -155,7 +170,8 @@
                                         </div>
                                         <select class="custom-select" v-model="item.calendar">
                                             <item-calendar v-for="item in cal_item" v-bind:item="item" v-bind:value="item.id" v-bind:key="item.id"></item-calendar>
-                                        </select>   
+                                        </select>
+                                        <color-picker></color-picker>   
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button" :title="i18n_text.help_rcal"><i class="fas fa-sync"></i></button>
                                         </div>
@@ -214,13 +230,14 @@
             let oVueNav = new Vue({
                 el: '#content',
                 data: {
+                    collapseStatus: false,
                     languagues: [
                         { id: 'fr', text: 'Français', icon: 'https://image.flaticon.com/icons/svg/197/197560.svg' },
-                        { id: 'en', text: 'English', icon: 'https://image.flaticon.com/icons/svg/197/197374.svg'  },
-                        { id: 'nt', text: 'No Text', icon: 'https://image.flaticon.com/icons/svg/179/179530.svg'}
+                        { id: 'en', text: 'English', icon: 'https://image.flaticon.com/icons/svg/197/197374.svg' },
+                        { id: 'nt', text: 'No Text', icon: 'https://image.flaticon.com/icons/svg/179/179530.svg' }
                     ],
                     language: 'fr',
-                    notext:false,
+                    notext: false,
                     menuItem: [],
                     calItem: [
                         { id: 'cal1', text: 'Perso' },
@@ -228,10 +245,12 @@
                         { id: 'cal3', text: 'Eux' }
                     ],
                     eventItem: [
-                        { id: 0, calendar:'cal3', text: 'Event 1', location: 'Aussonne', comment: 'toto', begda:'1984-01-17', 
-                            beghr:'13:25', endda:'2038-08-24', endhr:'14:32', collapse: false },
-                        /*    { id: 1, text: 'Event 2', location: 'Cornebarrieu', comment: '', collapse: false },
-                            { id: 2, text: 'Event 3', location: 'Toulouse',     comment: '',     collapse: false },*/
+                        {
+                            id: 0, calendar: 'cal3', text: 'Event 1', location: 'Aussonne', comment: 'toto', begda: '1984-01-17',
+                            beghr: '13:25', endda: '2038-08-24', endhr: '14:32', collapse: false
+                        },
+                        /*  { id: 1, text: 'Event 2', location: 'Cornebarrieu', comment: '', collapse: false },
+                          { id: 2, text: 'Event 3', location: 'Toulouse',     comment: '',     collapse: false },*/
                     ],
                     lastItemID: 3,
                 },
@@ -257,18 +276,18 @@
                             text: '',
                             comment: '',
                             location: '',
-                            begda:'',
-                            endda:'',
-                            beghr:'',
-                            endhr:'',
-                            calendar:'',
+                            begda: '',
+                            endda: '',
+                            beghr: '',
+                            endhr: '',
+                            calendar: '',
                             collapse: false
                         };
                         this.eventItem.push(newEvent);
                     },
                     changeLang: function (lang) {
                         if (lang == 'nt')
-                            this.notext = ! this.notext;
+                            this.notext = !this.notext;
                         else
                             this.language = lang;
                         try {
@@ -283,9 +302,20 @@
                         this.eventItem = this.eventItem.filter(item => { return item.id !== id })
                     },
                     collapseAll: function () {
-                        for(let i = 0; i < this.eventItem.length; i++)
-                        {
-                            this.eventItem[i].collapse = !this.eventItem[i].collapse;
+                        this.collapseStatus = !this.collapseStatus;
+
+                        for (let i = 0; i < this.eventItem.length; i++)
+                            this.eventItem[i].collapse = this.collapseStatus;
+
+                        if (this.collapseStatus) {
+                            $(".collapse-block").collapse('hide');
+                            this.menuItem[0].icon = 'far fa-plus-square';
+                            this.menuItem[0].text = 'menu_uncollapse';
+                        }
+                        else {
+                            $(".collapse-block").collapse('show');
+                            this.menuItem[0].icon = 'far fa-minus-square';
+                            this.menuItem[0].text = 'menu_collapse';
                         }
                     },
                     copyItem: function (id) {
@@ -295,11 +325,11 @@
                             'text': copyFrom.text,
                             'location': copyFrom.location,
                             'comment': copyFrom.comment,
-                            'calendar':copyFrom.calendar,
-                            begda:copyFrom.begda,
-                            endda:copyFrom.endda,
-                            beghr:copyFrom.beghr,
-                            endhr:copyFrom.endhr,
+                            'calendar': copyFrom.calendar,
+                            begda: copyFrom.begda,
+                            endda: copyFrom.endda,
+                            beghr: copyFrom.beghr,
+                            endhr: copyFrom.endhr,
                             'collapse': false
                         });
                     },
