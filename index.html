@@ -13,6 +13,11 @@
         .information {
             cursor: help;
         }
+
+        .coloritem {
+            display: inline-block;
+            width: 95%;
+        }
     </style>
     <!-- Optional JavaScript -->
 
@@ -84,7 +89,8 @@
             <form id="events">
                 <div id="event_list" class="mt-2">
                     <item-event v-for="item in eventItem" v-bind:item="item" v-bind:key="item.id" :i18n_text="i18n_text"
-                        :cal_item="calItem" @remove-item="removeItem" @duplicate-item="copyItem" :notext="notext">
+                        :cal_item="calItem" @remove-item="removeItem" @duplicate-item="copyItem" :notext="notext"
+                        :coloritem="coloredItem">
                     </item-event>
                     <no-item-event :i18n_text="i18n_text" v-if="!eventItem.length"></no-item-event>
                 </div>
@@ -96,31 +102,39 @@
             Vue.component('item-menu', {
                 /* data-toggle="modal" data-target="#optionsModal" */
                 props: ['item', 'i18n_text'],
-                template: '<li class="nav-item">' +
-                    '<a @click="$emit(item.action)" class="nav-link" href="#" >' +
-                    '<span :class="item.icon"></span>' +
-                    '&nbsp;{{ i18n_text[item.text] }}</a></li>'
+                template: `
+                        <li class="nav-item">
+                            <a @click="$emit(item.action)" class="nav-link" href="#">
+                                <span :class="item.icon"></span>&nbsp;{{ i18n_text[item.text] }}</a>
+                        </li>`
             });
             Vue.component('item-language', {
                 props: ['item', 'lang'],
-                template: `<li>
-                            <img @click="$emit('change-lang', item.id)" :title="item.text" :src="item.icon" :alt="item.id" 
-                                height="24px" width="24px"></img>&nbsp;
-                            </li>`
+                template: `
+                        <li>
+                            <img @click="$emit('change-lang', item.id)" :title="item.text" :src="item.icon" :alt="item.id" height="24px" width="24px"></img>&nbsp;
+                        </li>`
             });
 
             Vue.component('color-picker', {
-                template: `  <div class="input-group-append">
-    <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fill-drip"></i></button>
-    <div class="dropdown-menu">
-      <a class="dropdown-item" href="#">Action</a>
-      <a class="dropdown-item" href="#">Another action</a>
-      <a class="dropdown-item" href="#">Something else here</a>
-      <div role="separator" class="dropdown-divider"></div>
-      <a class="dropdown-item" href="#">Separated link</a>
-    </div>
-  </div>`
-            })
+                props: ['coloritem'],
+                template: `
+                        <div class="input-group-append">
+                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fill-drip"></i></button>
+                                <div class="dropdown-menu">
+                                    <color-item v-for="item in coloritem" v-bind:key="item.id" v-bind:item="item" ></color-item>
+                                </div>
+                        </div>`
+            });
+
+            Vue.component('color-item', {
+                props: ['item'],
+                template: `
+                    <a class="dropdown-item" href="#">
+                        <span class="selected-color-scheme coloritem" v-bind:style="{background: item.code}">&nbsp;</span>
+                    </a>
+                `
+            });
             Vue.component('item-calendar', {
                 props: ['item'],
                 template: `<option :value="item.id" >{{ item.text }}</option>`,
@@ -130,7 +144,7 @@
                 template: `<div class="alert alert-dismissible alert-info">{{ i18n_text.texteNoEvent }}</div>`
             });
             Vue.component('item-event', {
-                props: ['item', 'i18n_text', 'cal_item', 'notext'],
+                props: ['item', 'i18n_text', 'cal_item', 'notext', 'coloritem'],
                 data: function () {
                     return {
                         event_collapse: false,
@@ -171,7 +185,7 @@
                                         <select class="custom-select" v-model="item.calendar">
                                             <item-calendar v-for="item in cal_item" v-bind:item="item" v-bind:value="item.id" v-bind:key="item.id"></item-calendar>
                                         </select>
-                                        <color-picker></color-picker>   
+                                        <color-picker :coloritem="coloritem"></color-picker>   
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button" :title="i18n_text.help_rcal"><i class="fas fa-sync"></i></button>
                                         </div>
@@ -223,10 +237,9 @@
                                 </div>
                             </div>
                         </div>
-                        
-                    </fieldset>
-                    `
-            })
+                    </fieldset>`
+            });
+
             let oVueNav = new Vue({
                 el: '#content',
                 data: {
@@ -237,6 +250,19 @@
                         { id: 'nt', text: 'No Text', icon: 'https://image.flaticon.com/icons/svg/179/179530.svg' }
                     ],
                     language: 'fr',
+                    coloredItem: [
+                        { id: 'PALE_BLUE', code: '#9FC5E8' },
+                        { id: 'PALE_GREEN', code: '#B6D7A8' },
+                        { id: 'MAUVE', code: '#B4A7D6' },
+                        { id: 'PALE_RED', code: '#E06666' },
+                        { id: 'YELLOW', code: '#FFE599' },
+                        { id: 'ORANGE', code: '#F6B26B' },
+                        { id: 'CYAN', code: '#00FFFF' },
+                        { id: 'GRAY', code: '#D9D9D9' },
+                        { id: 'BLUE', code: '#6FA8DC' },
+                        { id: 'GREEN', code: '#6AA84F' },
+                        { id: 'RED', code: '#CC0000' }
+                    ],
                     notext: false,
                     menuItem: [],
                     calItem: [
