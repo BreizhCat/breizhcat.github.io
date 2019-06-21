@@ -90,7 +90,7 @@
                 <div id="event_list" class="mt-2">
                     <item-event v-for="item in eventItem" v-bind:item="item" v-bind:key="item.id" :i18n_text="i18n_text"
                         :cal_item="calItem" @remove-item="removeItem" @duplicate-item="copyItem" :notext="notext"
-                        :coloritem="coloredItem">
+                        :coloritem="coloredItem" @colorchanged="colorchanged">
                     </item-event>
                     <no-item-event :i18n_text="i18n_text" v-if="!eventItem.length"></no-item-event>
                 </div>
@@ -117,23 +117,39 @@
             });
 
             Vue.component('color-picker', {
-                props: ['coloritem'],
+                props: ['coloritem', 'selected_color', 'id'],
                 template: `
                         <div class="input-group-append">
-                            <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><i class="fas fa-fill-drip"></i></button>
-                                <div class="dropdown-menu">
-                                    <color-item v-for="item in coloritem" v-bind:key="item.id" v-bind:item="item" ></color-item>
-                                </div>
-                        </div>`
+                            <button class="btn btn-secondary dropdown-toggle" type="button" data-toggle="dropdown" 
+                                aria-haspopup="true" aria-expanded="false">
+                                <i :class="'colored'+id+' fas fa-fill-drip'" v-bind:style="{color:selected_color}"></i>
+                            </button>
+                            <div class="dropdown-menu">
+                                <color-item v-for="item in coloritem" v-bind:key="item.id" 
+                                    v-bind:item="item" :id="id" @colorchanged="colorchanged">
+                                </color-item>
+                            </div>
+                        </div>`,
+                methods: {
+                    colorchanged: function (color, id) {
+                        this.$emit('colorchanged', color, id);
+                    },
+                },
             });
 
             Vue.component('color-item', {
-                props: ['item'],
+                props: ['item', 'id'],
                 template: `
-                    <a class="dropdown-item" href="#">
-                        <span class="selected-color-scheme coloritem" v-bind:style="{background: item.code}">&nbsp;</span>
+                    <a class="dropdown-item" href="#" @click="changeColor(item.code, id)">
+                        <span :id="id" class="selected-color-scheme coloritem" v-bind:style="{background: item.code}">&nbsp;</span>
                     </a>
-                `
+                `,
+                methods: {
+                    changeColor: function (color, id) {
+                        $(".colored" + id).css('color', color);
+                        this.$emit('colorchanged', color, id);
+                    }
+                }
             });
             Vue.component('item-calendar', {
                 props: ['item'],
@@ -145,10 +161,10 @@
             });
             Vue.component('item-event', {
                 props: ['item', 'i18n_text', 'cal_item', 'notext', 'coloritem'],
-                data: function () {
-                    return {
-                        event_collapse: false,
-                    }
+                methods:{
+                    colorchanged: function (color, id) {
+                        this.$emit('colorchanged', color, id);
+                    },               
                 },
                 template: `
                     <fieldset>
@@ -185,7 +201,9 @@
                                         <select class="custom-select" v-model="item.calendar">
                                             <item-calendar v-for="item in cal_item" v-bind:item="item" v-bind:value="item.id" v-bind:key="item.id"></item-calendar>
                                         </select>
-                                        <color-picker :coloritem="coloritem"></color-picker>   
+                                        <color-picker :coloritem="coloritem" @colorchanged="colorchanged"
+                                            :selected_color="item.color" :id="item.id">
+                                            </color-picker>   
                                         <div class="input-group-append">
                                             <button class="btn btn-outline-secondary" type="button" :title="i18n_text.help_rcal"><i class="fas fa-sync"></i></button>
                                         </div>
@@ -273,12 +291,12 @@
                     eventItem: [
                         {
                             id: 0, calendar: 'cal3', text: 'Event 1', location: 'Aussonne', comment: 'toto', begda: '1984-01-17',
-                            beghr: '13:25', endda: '2038-08-24', endhr: '14:32', collapse: false
+                            beghr: '13:25', endda: '2038-08-24', endhr: '14:32', collapse: false, color: ''
                         },
                         /*  { id: 1, text: 'Event 2', location: 'Cornebarrieu', comment: '', collapse: false },
                           { id: 2, text: 'Event 3', location: 'Toulouse',     comment: '',     collapse: false },*/
                     ],
-                    lastItemID: 3,
+                    lastItemID: 1,
                 },
                 created: function () {
                     try {
@@ -307,6 +325,7 @@
                             beghr: '',
                             endhr: '',
                             calendar: '',
+                            color: '',
                             collapse: false
                         };
                         this.eventItem.push(newEvent);
@@ -344,19 +363,23 @@
                             this.menuItem[0].text = 'menu_collapse';
                         }
                     },
+                    colorchanged: function(color, id) {
+                        this.eventItem.filter(item => { return item.id === id })[0].color = color;
+                    },
                     copyItem: function (id) {
                         let copyFrom = this.eventItem.filter(item => { return item.id === id })[0];
                         this.eventItem.push({
-                            'id': this.lastItemID++,
-                            'text': copyFrom.text,
-                            'location': copyFrom.location,
-                            'comment': copyFrom.comment,
-                            'calendar': copyFrom.calendar,
+                            id: this.lastItemID++,
+                            text: copyFrom.text,
+                            location: copyFrom.location,
+                            comment: copyFrom.comment,
+                            calendar: copyFrom.calendar,
                             begda: copyFrom.begda,
                             endda: copyFrom.endda,
                             beghr: copyFrom.beghr,
                             endhr: copyFrom.endhr,
-                            'collapse': false
+                            color: copyFrom.color,
+                            collapse: false
                         });
                     },
                 }
